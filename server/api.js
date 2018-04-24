@@ -11,48 +11,41 @@ router.get('/getNearestShelter', getNearestShelter);
 router.post('/registerUser', registerUser);
 router.post('/updateDetails', updateDetails);
 router.post('/updateCounter', updateCounter);
-//router.get('/getStreetLights', getStreetLights);
 
 module.exports = router;
 
 function getNearestShelter(req,res,next){
-    try{
-        const shelter = await dbHandler.getNearestShelter(req.query.location);
+    dbHandler.getNearestShelter(req.query.location).then(shelter => {
         res.send(shelter);
-    }
-    catch(err){
+    }).catch(err => {
         res.send(err);
-    }
+    });
 }
 
 function registerUser(req,res,next){
-    try{
-        const user = await accountHandler.register(req.body.user);
-        res.send(user);
-    }
-    catch(err){
+    dbHandler.registerUser(req.body.user).then(data => {
+        res.send(data);
+    }).catch(err => {
         res.send(err);
-    }
+    });
 }
 
 function updateDetails(req,res,next){
-    try{
-        const user = await accountHandler.updateDetails(req.body.user);
-        res.send(user);
-    }
-    catch(err){
+
+    dbHandler.updateUserDetails(req.body.user).then(data => {
+            res.send(data);
+    }).catch(err => {
         res.send(err);
-    }
+    });
 }
 
 function updateCounter(req,res,next){
-    try{
-        const shelter_info = await dbHandler.updateCounter(req.body.shelterInfo);
-        res.send(shelter_info);
-    }
-    catch(err){
+
+    dbHandler.updateCounter(req.body.shelterInfo).then(data => {
+        res.send(data);
+    }).catch(err => {
         res.send(err);
-    }
+    });
 }
 
 function getStreetLights(req,res,next){
