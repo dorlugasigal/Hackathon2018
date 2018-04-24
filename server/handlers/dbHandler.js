@@ -24,6 +24,8 @@ exports.getNearestShelter = (location) => {
                 });
                 bestShelter.distance = Math.round(turf.distance(location, bestShelter.geometry.coordinates, units));
                 resolve(bestShelter);
+            }).catch(err=>{
+                reject(err);
             });
         });
     });
