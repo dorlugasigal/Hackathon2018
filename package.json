@@ -1,0 +1,26 @@
+{
+  "name": "openshelter",
+  "version": "1.0.0",
+  "description": "open shelter app backend api",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.com/mrnad12/Hackathon2018.git"
+  },
+  "author": "OpenShelter Team",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/mrnad12/Hackathon2018/issues"
+  },
+  "homepage": "https://gitlab.com/mrnad12/Hackathon2018#README",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.16.3",
+    "moment": "^2.22.1",
+    "mongodb": "^3.0.7"
+  }
+}
