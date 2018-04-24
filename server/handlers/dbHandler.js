@@ -114,16 +114,3 @@ exports.updateUserDetails = (user) => {
         })
     });
 };
-
-exports.getNearestShelter(turf.point([34.7891986, 31.2499399])).then(shelter => {
-    if(shelter.distance < 20)
-        console.log("Go To Shelter");
-    else {
-        exports.getNearestBuilding(turf.point([34.7891986, 31.2499399])).then(building => {
-            if(building.distance < 500)
-                console.log("go to building");
-            else
-                console.log("Take Cover");
-        });
-    }
-});

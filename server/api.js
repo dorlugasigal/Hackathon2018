@@ -16,7 +16,7 @@ module.exports = router;
 
 function getNearestShelter(req,res,next){
     dbHandler.getNearestShelter(turf.point([34.7891986, 31.2499399])).then(shelter => {
-        if(shelter.distance < 20)
+        if(shelter.distance < 500)
             res.send(shelter);
         else {
             dbHandler.getNearestBuilding(turf.point([34.7891986, 31.2499399])).then(building => {
