@@ -2,7 +2,7 @@ const express = require('express'),
       fs = require('fs'),
       path = require('path'),
       moment = require("moment"),
-      accountHandler = require('./handlers/accountHandler'),
+      turf = require("@turf/turf"),
       dbHandler = require('./handlers/dbHandler');
 
 const router = express.Router();
@@ -15,8 +15,19 @@ router.post('/updateCounter', updateCounter);
 module.exports = router;
 
 function getNearestShelter(req,res,next){
-    dbHandler.getNearestShelter(req.query.location).then(shelter => {
-        res.send(shelter);
+    dbHandler.getNearestShelter(turf.point([34.7891986, 31.2499399])).then(shelter => {
+        if(shelter.distance < 20)
+            res.send(shelter);
+        else {
+            dbHandler.getNearestBuilding(turf.point([34.7891986, 31.2499399])).then(building => {
+                if(building.distance < 500)
+                    res.send(building);
+                else
+                    res.send(false);
+            }).catch(err => {
+                res.send(err);
+            });
+        }
     }).catch(err => {
         res.send(err);
     });
@@ -46,14 +57,4 @@ function updateCounter(req,res,next){
     }).catch(err => {
         res.send(err);
     });
-}
-
-function getStreetLights(req,res,next){
-    try{
-        const user = await dbHandler.getStreetLights(req.body.location);
-        res.send(user);
-    }
-    catch(err){
-        res.send(err);
-    }
 }

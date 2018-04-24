@@ -1,4 +1,5 @@
 const mongo = require('mongodb');
+const turf = require('@turf/turf');
 const MongoClient = mongo.MongoClient;
 const mongoUri = "mongodb://adminhaim:adminhaim@ds155299.mlab.com:55299/openshelter";
 
@@ -12,8 +13,36 @@ const connection = closure => MongoClient.connect(mongoUri, (err, db) => {
 
 exports.getNearestShelter = (location) => {
     return new Promise((resolve, reject) => {
-
+        connection(db => {
+            db.collection("shelters").find({}).toArray().then(shelters => {
+                let bestShelter = shelters[0];
+                shelters.forEach(shelter =>{
+                    if(turf.distance(location, shelter.geometry.coordinates) < 500 &&
+                        turf.distance(location, shelter.geometry.coordinates) <  turf.distance(location, bestShelter.geometry.coordinates))
+                        bestShelter = shelter;
+                });
+                bestShelter.distance = Math.round(turf.distance(location, bestShelter.geometry.coordinates, { units:"meters" }));
+                resolve(bestShelter);
+            });
+        });
     });
+};
+
+exports.getNearestBuilding = (location) => {
+    return new Promise((resolve, reject) => {
+        connection(db => {
+            db.collection("buildings").find({}).toArray().then(buildings => {
+                let bestBuilding = buildings[0];
+                buildings.forEach(building =>{
+                    if(turf.distance(location, building.geometry.coordinates) < 500 &&
+                        turf.distance(location, building.geometry.coordinates) <  turf.distance(location, bestBuilding.geometry.coordinates))
+                        bestBuilding = building;
+                });
+                bestBuilding.distance = Math.round(turf.distance(location, bestBuilding.geometry.coordinates, { units:"meters" }));
+                resolve(bestBuilding);
+            });
+        });
+    })
 };
 
 exports.updateCounter = (shelter_info) => {
@@ -84,3 +113,16 @@ exports.updateUserDetails = (user) => {
         })
     });
 };
+
+exports.getNearestShelter(turf.point([34.7891986, 31.2499399])).then(shelter => {
+    if(shelter.distance < 20)
+        console.log("Go To Shelter");
+    else {
+        exports.getNearestBuilding(turf.point([34.7891986, 31.2499399])).then(building => {
+            if(building.distance < 500)
+                console.log("go to building");
+            else
+                console.log("Take Cover");
+        });
+    }
+});
