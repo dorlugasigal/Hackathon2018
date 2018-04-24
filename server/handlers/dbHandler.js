@@ -2,7 +2,7 @@ const mongo = require('mongodb');
 const turf = require('@turf/turf');
 const MongoClient = mongo.MongoClient;
 const mongoUri = "mongodb://adminhaim:adminhaim@ds155299.mlab.com:55299/openshelter";
-
+const units = {units: 'meters'};
 
 const connection = closure => MongoClient.connect(mongoUri, (err, db) => {
     if (err) return console.log(err);
@@ -16,12 +16,13 @@ exports.getNearestShelter = (location) => {
         connection(db => {
             db.collection("shelters").find({}).toArray().then(shelters => {
                 let bestShelter = shelters[0];
+
                 shelters.forEach(shelter =>{
-                    if(turf.distance(location, shelter.geometry.coordinates) < 500 &&
-                        turf.distance(location, shelter.geometry.coordinates) <  turf.distance(location, bestShelter.geometry.coordinates))
+                    if(turf.distance(location, shelter.geometry.coordinates, units) < 500 &&
+                        turf.distance(location, shelter.geometry.coordinates, units) <  turf.distance(location, bestShelter.geometry.coordinates, units))
                         bestShelter = shelter;
                 });
-                bestShelter.distance = Math.round(turf.distance(location, bestShelter.geometry.coordinates, { units:"meters" }));
+                bestShelter.distance = Math.round(turf.distance(location, bestShelter.geometry.coordinates, units));
                 resolve(bestShelter);
             });
         });
@@ -34,11 +35,11 @@ exports.getNearestBuilding = (location) => {
             db.collection("buildings").find({}).toArray().then(buildings => {
                 let bestBuilding = buildings[0];
                 buildings.forEach(building =>{
-                    if(turf.distance(location, building.geometry.coordinates) < 500 &&
-                        turf.distance(location, building.geometry.coordinates) <  turf.distance(location, bestBuilding.geometry.coordinates))
+                    if(turf.distance(location, building.geometry.coordinates, units) < 500 &&
+                        turf.distance(location, building.geometry.coordinates, units) <  turf.distance(location, bestBuilding.geometry.coordinates, units))
                         bestBuilding = building;
                 });
-                bestBuilding.distance = Math.round(turf.distance(location, bestBuilding.geometry.coordinates, { units:"meters" }));
+                bestBuilding.distance = Math.round(turf.distance(location, bestBuilding.geometry.coordinates, units));
                 resolve(bestBuilding);
             });
         });
