@@ -92,6 +92,19 @@ exports.registerUser = (user) => {
     });
 };
 
+
+exports.loginUser = (user) => {
+    return new Promise((reject, resolve) => {
+        connection(db => {
+            db.collection("users").insertOne(user).then((data) => {
+                resolve(data.ops[0]);
+            }).catch(err => {
+                reject(err);
+            })
+        })
+    });
+};
+
 exports.updateUserDetails = (user) => {
     return new Promise((reject, resolve) => {
         connection(db => {
