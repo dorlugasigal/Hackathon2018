@@ -18,17 +18,21 @@ export default class MapScreen extends React.Component {
   
   constructor(props) {
     super(props);
-    this.state = {sourceLan: 0,sourceLong:0,dest:0};
+    this.state = {sourceLan: 0,sourceLong:0,destLan:0,destLong:0};
   }
-    handleGetDirections = () => {
+  static navigationOptions = {
+    title: 'Map',
+  };
+
+    handleGetDirections = (srcLat, srcLng, destLat, destLng) => {
     const data = {
        source: {
-        latitude: sourceLan,
-        longitude: sourceLong
+        latitude: srcLat,
+        longitude: srcLng
       },
       destination: {
-        latitude: destLan,
-        longitude: destLong
+        latitude: destLat,
+        longitude:destLng
       },
       params: [
         {
@@ -45,101 +49,61 @@ export default class MapScreen extends React.Component {
     getDirections(data)
   }
 
-  getLocationFromApiAsync = (position) => {
-    let location = {
-      location: [position.coords.latitude, position.coords.longitude]
-    }
-    alert(JSON.stringify(location));
-    console.warn(JSON.stringify(location));
-  //   return fetch('http://ec2-18-218-230-49.us-east-2.compute.amazonaws.com:3000/api/getNearestShelter', {
-  //     method: 'POST',
-  //     mode: "no-cors",
-  //     headers: {
-  //       'Accept': 'application/json', 
-  //       'Content-Type': 'application/json'
-  //     },
-  //     body:JSON.stringify(location)
-  //   }).then((res) => {
-  //     res.json().then(jsonData => {
-  //       console.warn("this is res", jsonData)
-  //     })
-  // });
-    axios.post('http://ec2-18-218-230-49.us-east-2.compute.amazonaws.com:3000/api/getNearestShelter', {
-      location: [position.coords.latitude, position.coords.longitude]
-    }).then(data => { 
-      console.warn(data);
-    })
-  }
+  getLocationFromApi = (position) => {
+    return new Promise( (resolve, reject) => {
+      fetch('http://ec2-18-218-230-49.us-east-2.compute.amazonaws.com:3000/api/getNearestShelter', {
+        method: 'POST',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            location: position,
+        }),
+    }).then((response) => response.json())
+      .then((responseJson) => {
+          resolve(responseJson);
+      })
+      .catch((error) => {
+          reject(error);
+      });
+  })
+};
 
 
   componentDidMount(){
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        alert("state of lat in callback is "+position.coords.latitude+
-        " and state of long in callback is "+position.coords.longitude);          
-          alert(1);
-          this.getLocationFromApiAsync(position).then((data) => {
-            console.warn(data);
-            this.setState({dest:data.data.geometry.coordinates})
-            alert(this.state.dest);
-      
-      
-            handleGetDirections();
-          }).catch(error => console.error(error));
-           
-      },
-    );
-   
+    navigator.geolocation.getCurrentPosition((position) =>{
+      this.getLocationFromApi([position.coords.longitude, position.coords.latitude]).then(nearest => {
+        this.handleGetDirections(position.coords.latitude, position.coords.longitude,
+           nearest.geometry.coordinates[1],nearest.geometry.coordinates[0]);
+      }).catch(err => {
+        console.error(err);
+      })
+    }, (err) => {
+      console.error(err);
+    });
   }
 
   render() {
     return (
       <View style={styles.container}>
-           <Text style={{color: 'red'}}>
+           <Text style={styles.getStartedText}>
+           Loading...
           </Text>
       </View>
     );
   }
   
 
-  // _maybeRenderDevelopmentModeWarning() {
-  //   if (__DEV__) {
-  //     const learnMoreButton = (
-  //       <Text onPress={this._handleLearnMorePress} style={styles.helpLinkText}>
-  //         Learn more
-  //       </Text>
-  //     );
-
-  //     return (
-  //       <Text style={styles.developmentModeText}>
-  //         Development mode is enabled, your app will be slower but you can use useful development
-  //         tools. {learnMoreButton}
-  //       </Text>
-  //     );
-  //   } else {
-  //     return (
-  //       <Text style={styles.developmentModeText}>
-  //         You are not in development mode, your app will run at full speed.
-  //       </Text>
-  //     );
-  //   }
-  // }
-
-  // _handleLearnMorePress = () => {
-  //   WebBrowser.openBrowserAsync('https://docs.expo.io/versions/latest/guides/development-mode');
-  // };
-
-  // _handleHelpPress = () => {
-  //   WebBrowser.openBrowserAsync(
-  //     'https://docs.expo.io/versions/latest/guides/up-and-running.html#can-t-see-your-changes'
-  //   );
-  // };
+  
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#e2edff',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   developmentModeText: {
     marginBottom: 20,
@@ -179,9 +143,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   getStartedText: {
-    fontSize: 17,
+    fontSize: 40,
     color: 'rgba(96,100,109, 1)',
-    lineHeight: 24,
+    //lineHeight: 24,
     textAlign: 'center',
   },
   tabBarInfoContainer: {

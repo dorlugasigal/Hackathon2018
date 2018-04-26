@@ -8,9 +8,14 @@ import Colors from '../constants/Colors';
 import MapScreen from '../screens/MapScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import AboutScreen from '../screens/AboutScreen';
+import SignInScreen from '../screens/SignInScreen';
+import ContactsScreen from "../screens/ContactsScreen";
 
 export default TabNavigator(
   {
+    SignIn: {
+      screen: SignInScreen,
+    },
     Map: {
       screen: MapScreen,
     },
@@ -20,6 +25,9 @@ export default TabNavigator(
     About: {
       screen: AboutScreen,
     },
+    Contacts: {
+      screen: ContactsScreen
+    }
   },
   {
     navigationOptions: ({ navigation }) => ({
@@ -35,6 +43,13 @@ export default TabNavigator(
             break;
           case 'About':
             iconName ='ios-help-circle-outline';
+            break;
+          case 'SignIn':
+            iconName ='ios-log-in-outline';
+            break;
+          case 'Contacts':
+            iconName ='md-people';
+            break;
         }
         return (
           <Ionicons
